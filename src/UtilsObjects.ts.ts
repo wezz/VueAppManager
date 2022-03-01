@@ -13,7 +13,7 @@
     if (Array.isArray(input)) {
       result = input.map(this.ObjKeysToLowercase.bind(this));
     } else {
-      result = Object.keys(input).reduce((newObj, key) => {
+      result = Object.keys(input).reduce((newObj: any, key) => {
         const val = input[key];
         const newVal =
           typeof val === "object" && val !== null

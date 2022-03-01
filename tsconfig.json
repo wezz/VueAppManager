@@ -2,10 +2,16 @@
     "compilerOptions": {
       "module": "commonjs",
       "target": "es5",
-      "sourceMap": true
+      "sourceMap": true,
+      "strict": true,
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
     },
     "exclude": [
 	  "node_modules",
 	  "**/*.spec.ts"
+    ],
+    "include": [
+      "./src/*"
     ]
   }

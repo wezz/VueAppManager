@@ -23,7 +23,7 @@ const banner = `
   LICENSE file in the root directory of this source tree.
 `;
 
-module.exports = {
+const libraryBuildConfig = {
   mode: "production",
   devtool: 'source-map',
   entry: './src/index.js',
@@ -76,3 +76,62 @@ module.exports = {
       }
   },
 };
+
+const demoBuildConfig = {
+  mode: "production",
+  devtool: 'source-map',
+  entry: './demo/main.ts',
+  output: {
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'demo/dist'),
+    publicPath: '/demo/dist'
+  },
+  optimization: {
+    minimize: true
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,
+        loader: 'ts-loader',
+        exclude: /node_modules/,
+        options: {
+          appendTsSuffixTo: [/\.vue$/],
+        }
+      },
+      {
+        test: /\.css$/i,
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/,
+        use: ['url-loader'],
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader',
+        options: {
+          loaders: {
+            // Since sass-loader (weirdly) has SCSS as its default parse mode, we map
+            // the "scss" and "sass" values for the lang attribute to the right configs here.
+            // other preprocessors should work out of the box, no loader config like this necessary.
+            'scss': 'vue-style-loader!css-loader!sass-loader',
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax',
+          }
+          // other vue-loader options go here
+        }
+      },
+    ]
+  },
+  plugins: [
+    new VueLoaderPlugin()
+  ],
+  resolve: {
+      extensions: [".tsx", ".ts", ".js", ".vue"],
+      alias: {
+        'vue$': 'vue/dist/vue.runtime.esm.js'
+      }
+  },
+};
+
+module.exports = [libraryBuildConfig, demoBuildConfig]

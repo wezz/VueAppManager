@@ -24,7 +24,7 @@ export default class VueAppManager {
   private controlelements: HTMLElement[] = [];
   private eventPrefix = "vueapp-";
   private controlselector = "vue-app";
-  private registerNamespace = "vueappmanager";
+  private registerNamespace = "vueappmanagerApps";
   private registeredAppsKey = "registeredapps";
   private registeredStoresKey = "registeredstores";
   private statuses = {
@@ -50,9 +50,9 @@ export default class VueAppManager {
   public InitiateElements() {
     const controlElements = [].slice.call(
       document.querySelectorAll(this.controlselector)
-    );
+    ) as HTMLElement[];
     const newElements = controlElements.filter(
-      (elm) => (elm as HTMLElement).dataset.vueappmanager !== "activated"
+      (elm) => elm.dataset.vueappmanager !== "activated"
     );
     newElements.forEach(this.loadApp.bind(this));
     newElements.forEach((elm) => (elm.dataset.vueappmanager = "activated"));
@@ -88,17 +88,18 @@ export default class VueAppManager {
       return appWasLoaded;
     }
     const onAppRender = function () {
-      const appScope = this as any;
-      appScope.$nextTick(function () {
-        const nextTickScope = this as any;
-        const appElm = nextTickScope.$el.parentElement as HTMLElement;
-        const appstatusAttribute = document.createAttribute("data-appstatus");
-        if (appElm) {
-          nextTickScope.TriggerMarkupChangeEvent(appElm);
-          appstatusAttribute.value = "rendered";
-          appElm.attributes.setNamedItem(appstatusAttribute);
-        }
-      });
+      // TODO FIX Scope Issue
+      // const appScope : any = this as any;
+      // appScope.$nextTick(function () {
+      //   const nextTickScope = this as any;
+      //   const appElm = nextTickScope.$el.parentElement as HTMLElement;
+      //   const appstatusAttribute = document.createAttribute("data-appstatus");
+      //   if (appElm) {
+      //     nextTickScope.TriggerMarkupChangeEvent(appElm);
+      //     appstatusAttribute.value = "rendered";
+      //     appElm.attributes.setNamedItem(appstatusAttribute);
+      //   }
+      // });
     };
     store = store !== null ? store : new Vuex.Store({});
     const vueapp = new Vue({
@@ -183,9 +184,9 @@ export default class VueAppManager {
       created() {
         const prepopulatedProperty = ["options", "messages", "appdata"];
         prepopulatedProperty.forEach((propname) => {
-          if (this["$root"][propname]) {
-            const originalValue = this[propname];
-            let setValue = this["$root"][propname];
+          if ((this as any)["$root"][propname]) {
+            const originalValue = (this as any)[propname];
+            let setValue = (this as any)["$root"][propname];
             if (
               typeof originalValue === "object" &&
               Object.keys(originalValue).length > 0
@@ -198,7 +199,7 @@ export default class VueAppManager {
       },
       computed: {
         i18n() {
-          return this.options.i18n || {};
+          return (this.options as any).i18n || {};
         },
       },
       data() {
@@ -337,9 +338,16 @@ export default class VueAppManager {
     Vue.use(Vuex);
     Vue.use(AsyncComputed);
     this.addMixingToVue();
-    window.addEventListener("global-markupchange", (e: any) => {
+    if (document.readyState === "complete") {
+      this.InitiateElements();
+    }
+    window.addEventListener("global-markupchange", (e: Event) => {
       this.InitiateElements();
     });
+    window.addEventListener("DOMContentLoaded", () => {
+      this.InitiateElements();
+    });
+
     document.documentElement.dataset.vuemanagerinitialized = "true";
   }
 }
