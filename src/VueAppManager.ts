@@ -101,7 +101,7 @@ export default class VueAppManager {
       //   }
       // });
     };
-    store = store !== null ? store : new Vuex.Store({});
+    store = store !== null ? store : Vuex ? new Vuex.Store({}) : null;
     const vueapp = new Vue({
       el: targetelm,
       store,
@@ -335,7 +335,9 @@ export default class VueAppManager {
     ) {
       (window as any)[this.registerNamespace][this.registeredStoresKey] = {};
     }
-    Vue.use(Vuex);
+    if (Vuex) {
+      Vue.use(Vuex);
+    }
     Vue.use(AsyncComputed);
     this.addMixingToVue();
     if (document.readyState === "complete") {
