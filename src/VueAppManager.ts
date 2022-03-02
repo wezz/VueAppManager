@@ -74,7 +74,6 @@ export default class VueAppManager {
     targetelm: HTMLElement,
     options: any,
     appdata: any,
-    messages: any,
     store: any,
     eventstobind: string[]
   ) {
@@ -87,19 +86,18 @@ export default class VueAppManager {
     if (vueappModule === null || typeof Vue !== "function") {
       return appWasLoaded;
     }
-    const onAppRender = function () {
-      // TODO FIX Scope Issue
-      // const appScope : any = this as any;
-      // appScope.$nextTick(function () {
-      //   const nextTickScope = this as any;
-      //   const appElm = nextTickScope.$el.parentElement as HTMLElement;
-      //   const appstatusAttribute = document.createAttribute("data-appstatus");
-      //   if (appElm) {
-      //     nextTickScope.TriggerMarkupChangeEvent(appElm);
-      //     appstatusAttribute.value = "rendered";
-      //     appElm.attributes.setNamedItem(appstatusAttribute);
-      //   }
-      // });
+    const onAppRender = function (this: any) {
+      const appScope : any = this as any;
+      appScope.$nextTick(function (this: any) {
+        const nextTickScope = this as any;
+        const appElm = nextTickScope.$el.parentElement as HTMLElement;
+        const appstatusAttribute = document.createAttribute("data-appstatus");
+        if (appElm) {
+          nextTickScope.TriggerMarkupChangeEvent(appElm);
+          appstatusAttribute.value = "rendered";
+          appElm.attributes.setNamedItem(appstatusAttribute);
+        }
+      });
     };
     store = store !== null ? store : Vuex ? new Vuex.Store({}) : null;
     const vueapp = new Vue({
@@ -108,7 +106,6 @@ export default class VueAppManager {
       data: {
         options: JSON.parse(JSON.stringify(options)),
         appdata: JSON.parse(JSON.stringify(appdata)),
-        messages: JSON.parse(JSON.stringify(messages)),
       },
       render: (createElement) => {
         return createElement(vueappModule, options, null);
@@ -182,7 +179,7 @@ export default class VueAppManager {
       : currentLanguage;
     Vue.mixin({
       created() {
-        const prepopulatedProperty = ["options", "messages", "appdata"];
+        const prepopulatedProperty = ["options", "appdata"];
         prepopulatedProperty.forEach((propname) => {
           if ((this as any)["$root"][propname]) {
             const originalValue = (this as any)[propname];
@@ -209,7 +206,6 @@ export default class VueAppManager {
             currentlanguage: currentLanguage,
             prefferedculture: prefferedCulture,
           },
-          messages: {},
           options: {},
         };
       },
@@ -261,7 +257,6 @@ export default class VueAppManager {
     const isType = (o: any, t: string) => typeof o === t;
     const optionstring = this.getAttribute(elm, "options");
     const appdatastring = this.getAttribute(elm, "appdata");
-    const messagesstring = this.getAttribute(elm, "messages");
     const storestring = this.getAttribute(elm, "store");
     const eventstobind = this.getAttribute(elm, "events").split(",");
     const appstatusAttribute = document.createAttribute("data-appstatus");
@@ -270,7 +265,6 @@ export default class VueAppManager {
       ? (document.querySelector(targetselector) as HTMLElement)
       : document.createElement("div");
     let options = {};
-    let messages = {};
     let appdata = {};
     let store = null;
 
@@ -280,10 +274,6 @@ export default class VueAppManager {
 
     if (isType(optionstring, "string")) {
       options = utilsObjects.StringToObject(optionstring);
-    }
-
-    if (isType(messagesstring, "string")) {
-      messages = utilsObjects.StringToObject(messagesstring);
     }
     if (isType(appdatastring, "string")) {
       appdata = utilsObjects.StringToObject(appdatastring);
@@ -305,7 +295,6 @@ export default class VueAppManager {
         targetelm,
         options,
         appdata,
-        messages,
         store,
         eventstobind
       );
