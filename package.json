@@ -1,6 +1,6 @@
 {
   "name": "@wezz/vueapp-manager",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A script to dynamically load in Vue applications leveraging Webpacks dynamic loading",
   "main": "build/index.js",
   "scripts": {
