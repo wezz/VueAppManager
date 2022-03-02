@@ -87,7 +87,7 @@ export default class VueAppManager {
       return appWasLoaded;
     }
     const onAppRender = function (this: any) {
-      const appScope : any = this as any;
+      const appScope: any = this as any;
       appScope.$nextTick(function (this: any) {
         const nextTickScope = this as any;
         const appElm = nextTickScope.$el.parentElement as HTMLElement;
