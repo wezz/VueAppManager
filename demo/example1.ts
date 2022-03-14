@@ -1,5 +1,7 @@
 console.log('example1.ts loaded')
-const VueAppManager = (window as any).VueAppManager['default'];
+// const VueAppManager = (window as any).VueAppManager;
+import VueAppManager from "../src/VueAppManager";
+console.log('example VueAppManager', VueAppManager)
 const vueAppManager = new VueAppManager();
 console.log('vueAppManager', vueAppManager)
 vueAppManager.RegisterApp("example1app", getExample1App);

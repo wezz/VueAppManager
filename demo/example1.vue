@@ -1,6 +1,7 @@
 <template>
   <div class="container">
-    Example App 1
+    Example App 1<br/>
+    textdata: {{ textdata }}
   </div>
 </template>
 
@@ -15,8 +16,13 @@
 import Vue from 'vue';
 export default Vue.extend({
     name: 'example1app',
+    data() {
+      return {
+        textdata: "textdata",
+      };
+    },
     mounted() {
-      console.log('Example 1 app mounted')
+      console.log('Example 1 app mounted', this, this.textdata)
     }
 });
 </script>

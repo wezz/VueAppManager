@@ -50,5 +50,8 @@
     "vuex": "3.6.2",
     "webpack": "^5.2.0",
     "webpack-cli": "^4.1.0"
+  },
+  "dependencies": {
+    "@wezz/window-reference-store": "0.0.6"
   }
 }

@@ -1,5 +1,23 @@
 /*!
+ * 
+ *   @wezz/window-reference-store v0.0.6
+ *   https://github.com/wezz/WindowReferenceStore
+ *
+ *   Copyright (c) Wezz Balk (https://github.com/wezz)
+ *
+ *   This source code is licensed under the MIT license found in the
+ *   LICENSE file in the root directory of this source tree.
+ *
+ */
+
+/*!
  * Vue.js v2.6.14
  * (c) 2014-2021 Evan You
  * Released under the MIT License.
+ */
+
+/*!
+ * vuex v3.6.2
+ * (c) 2021 Evan You
+ * @license MIT
  */

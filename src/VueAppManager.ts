@@ -1,32 +1,31 @@
 ﻿/*
-This script will manage the initiation and loading of Vua apps that are initiated through the vue-app tag.
+  This script will manage the initiation and loading of Vua apps that are initiated through the vue-app tag.
 
-Attribute values are stringified json values that are URI Encoded.
-Ex. encodeURIComponent(JSON.stringify({"debug":true}))
+  Attribute values are stringified json values that are URI Encoded.
+  Ex. encodeURIComponent(JSON.stringify({"debug":true}))
 
-Example of a hello world Vue App
+  Example of a hello world Vue App
 
-<vue-app
-name="helloworld"
-options="%7B%22verbose%22%3Atrue%2C%22debug%22%3Atrue%7D"
-appdata="%7B%22numbervalue%22%3A123%2C%22stringvalue%3A%22%3A%22stringdata%22%2C%22boolvalue%22%3Atrue%7D"
-store="helloworldstore"
-></vue-app>
-*/
+  <vue-app
+  name="helloworld"
+  options="%7B%22verbose%22%3Atrue%2C%22debug%22%3Atrue%7D"
+  appdata="%7B%22numbervalue%22%3A123%2C%22stringvalue%3A%22%3A%22stringdata%22%2C%22boolvalue%22%3Atrue%7D"
+  store="helloworldstore"
+  ></vue-app>
+  */
 
 import Vue, { VueConstructor } from "vue";
 import Vuex from "vuex";
 import AsyncComputed from "vue-async-computed";
-
+import RefStore from "@wezz/window-reference-store";
 import utilsObjects from "./UtilsObjects.ts";
 
 export default class VueAppManager {
   private controlelements: HTMLElement[] = [];
   private eventPrefix = "vueapp-";
   private controlselector = "vue-app";
-  private registerNamespace = "vueappmanagerApps";
-  private registeredAppsKey = "registeredapps";
-  private registeredStoresKey = "registeredstores";
+  private appStore: any;
+  private storeStore: any;
   private statuses = {
     Initiated: "initiated",
     Rendered: "rendered",
@@ -34,18 +33,17 @@ export default class VueAppManager {
 
   constructor() {
     // Make sure older browsers respect the vue-app element
+    console.log("WindowReferenceStore", RefStore);
+    this.appStore = new RefStore("registeredapps", "vueappmanagerApps");
+    this.storeStore = new RefStore("registeredstores", "vueappmanagerApps");
     this.globalInitiation();
   }
 
   public RegisterApp(name: string, callback: (module: any) => {}) {
-    (window as any)[this.registerNamespace][this.registeredAppsKey][
-      name
-    ] = callback;
+    this.appStore.set(name, callback);
   }
   public RegisterStore(name: string, store: any) {
-    (window as any)[this.registerNamespace][this.registeredStoresKey][
-      name
-    ] = store;
+    this.storeStore.set(name, store);
   }
   public InitiateElements() {
     const controlElements = [].slice.call(
@@ -64,7 +62,9 @@ export default class VueAppManager {
 
   public TriggerEvent(elm: Element, eventname: string, data: any) {
     elm.dispatchEvent(
-      new CustomEvent(this.eventPrefix + eventname, { detail: data })
+      new CustomEvent(this.eventPrefix + eventname, {
+        detail: data,
+      })
     );
   }
 
@@ -86,11 +86,13 @@ export default class VueAppManager {
     if (vueappModule === null || typeof Vue !== "function") {
       return appWasLoaded;
     }
-    const onAppRender = function (this: any) {
+    const onAppRender = function () {
+      console.log("onAppRender this", this);
       const appScope: any = this as any;
-      appScope.$nextTick(function (this: any) {
+      appScope.$nextTick(function () {
         const nextTickScope = this as any;
         const appElm = nextTickScope.$el.parentElement as HTMLElement;
+        console.log("onAppRender appElm", appElm, nextTickScope.$el);
         const appstatusAttribute = document.createAttribute("data-appstatus");
         if (appElm) {
           nextTickScope.TriggerMarkupChangeEvent(appElm);
@@ -110,63 +112,40 @@ export default class VueAppManager {
       render: (createElement) => {
         return createElement(vueappModule, options, null);
       },
-      updated: onAppRender,
-      mounted: onAppRender,
+      // updated: onAppRender,
+      // mounted: onAppRender,
       renderError(h, err) {
         console.error(err);
         return h();
       },
     });
     eventstobind.forEach((eventname) => {
-      //originelm.addEventListener(this.eventPrefix + eventname, (e) =>
-
       originelm.addEventListener(this.eventPrefix + eventname.trim(), (e) => {
         if (typeof (vueapp as any)["onTriggeredEvent"] === "function") {
           (vueapp as any)["onTriggeredEvent"](eventname, e);
         }
       });
     });
-    //elm.prototype.vueapp =vueapp;
-
     appWasLoaded = true;
     return appWasLoaded;
   }
 
   private getRegisteredAppLoader(name: string) {
-    if (!this.appHasBeenRegistered(name)) {
+    if (!this.appStore.has(name)) {
       console.info("Unable to find any app registered with the name: " + name);
       return null;
     }
-    return (window as any)[this.registerNamespace][this.registeredAppsKey][
-      name
-    ]();
+    return this.appStore.get(name)();
   }
 
-  private appHasBeenRegistered(name: string) {
-    return (
-      typeof (window as any)[this.registerNamespace][this.registeredAppsKey][
-        name
-      ] === "function"
-    );
-  }
   private getRegisteredStore(name: string) {
-    if (!this.storeHasBeenRegistered(name)) {
+    if (!this.storeStore.has(name)) {
       console.info(
         "Unable to find any store registered with the name: " + name
       );
       return null;
     }
-    return (window as any)[this.registerNamespace][this.registeredStoresKey][
-      name
-    ];
-  }
-
-  private storeHasBeenRegistered(name: string) {
-    return (
-      typeof (window as any)[this.registerNamespace][this.registeredStoresKey][
-        name
-      ] !== "undefined"
-    );
+    return this.storeStore.get(name);
   }
 
   private addMixingToVue() {
@@ -188,7 +167,10 @@ export default class VueAppManager {
               typeof originalValue === "object" &&
               Object.keys(originalValue).length > 0
             ) {
-              setValue = { ...originalValue, ...setValue };
+              setValue = {
+                ...originalValue,
+                ...setValue,
+              };
             }
             Vue.set(this, propname, setValue);
           }
@@ -228,14 +210,20 @@ export default class VueAppManager {
               .parentElement;
             if (parentElm) {
               parentElm.dispatchEvent(
-                new CustomEvent(eventname, { detail: eventdata })
+                new CustomEvent(eventname, {
+                  detail: eventdata,
+                })
               );
             }
           }
         },
         TriggerMarkupChangeEvent(elm) {
           window.dispatchEvent(
-            new CustomEvent("global-markupchange", { detail: { target: elm } })
+            new CustomEvent("global-markupchange", {
+              detail: {
+                target: elm,
+              },
+            })
           );
         },
       },
@@ -251,7 +239,7 @@ export default class VueAppManager {
   }
   private async loadApp(elm: HTMLElement) {
     const appname = this.getAttribute(elm, "name");
-    if (this.appHasBeenRegistered(appname) === false) {
+    if (!this.appStore.has(appname)) {
       return;
     }
     const isType = (o: any, t: string) => typeof o === t;
@@ -279,8 +267,8 @@ export default class VueAppManager {
       appdata = utilsObjects.StringToObject(appdatastring);
     }
     if (isType(storestring, "string") && storestring !== "") {
-      if (this.storeHasBeenRegistered(storestring)) {
-        store = this.getRegisteredStore(storestring);
+      if (this.storeStore.has(storestring)) {
+        store = this.storeStore.get(storestring);
       }
     }
 
@@ -308,22 +296,7 @@ export default class VueAppManager {
       return;
     }
     document.createElement("vue-app");
-    if (typeof (window as any)[this.registerNamespace] === "undefined") {
-      (window as any)[this.registerNamespace] = {};
-    }
-    if (
-      typeof (window as any)[this.registerNamespace][this.registeredAppsKey] ===
-      "undefined"
-    ) {
-      (window as any)[this.registerNamespace][this.registeredAppsKey] = {};
-    }
-    if (
-      typeof (window as any)[this.registerNamespace][
-        this.registeredStoresKey
-      ] === "undefined"
-    ) {
-      (window as any)[this.registerNamespace][this.registeredStoresKey] = {};
-    }
+
     if (Vuex) {
       Vue.use(Vuex);
     }
