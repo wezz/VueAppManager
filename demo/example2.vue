@@ -1,7 +1,8 @@
 <template>
   <div class="container">
-    Example App 1<br/>
-    textdata: {{ textdata }}
+    Example App 2<br/>
+    this.options.enabled: {{this.options.enabled}}<br/>
+    this.options.optionvalue: {{this.options.optionvalue}}<br/>
   </div>
 </template>
 
@@ -15,14 +16,15 @@
 <script lang="ts">
 import Vue from 'vue';
 export default Vue.extend({
-    name: 'example1app',
+    name: 'example2app',
     data() {
       return {
-        textdata: "textdata",
+        
       };
     },
     mounted() {
-      console.log('Example 1 app mounted', this)
+      console.log('Example 2 app mounted', this);
+      console.log('Example 2 app options', this.options);
     }
 });
 </script>

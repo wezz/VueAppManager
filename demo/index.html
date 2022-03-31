@@ -20,9 +20,22 @@
   <div id="examples">
     <section>
       <h2>Example 1. Render an app</h2>
+      <pre><code>&lt;vue-app name=&quot;example1app&quot;&gt;&lt;/vue-app&gt;</code></pre>
       <vue-app name="example1app"></vue-app>
     </section>
-
+    <section>
+      <h2>Example 2. Render an app with attribute options</h2>
+      <pre><code>Options: { enabled: true, optionvalue:123 }</code></pre>
+      <pre><code>&lt;vue-app name=&quot;example2app&quot; options=&quot;%7B%20%22enabled%22%3A%20true%2C%20%22optionvalue%22%3A123%20%7D&quot;&gt;&lt;/vue-app&gt;</code></pre>
+      <vue-app name="example2app" options="%7B%20%22enabled%22%3A%20true%2C%20%22optionvalue%22%3A123%20%7D"></vue-app>
+    </section>
+    <section>
+      <h2>Example 3. Render an app with a shared store</h2>
+      <pre><code>&lt;vue-app name=&quot;example3Aapp&quot; store=&quot;sharedstore&quot;&gt;&lt;/vue-app&gt;</code></pre>
+      <pre><code>&lt;vue-app name=&quot;example3Bapp&quot; store=&quot;sharedstore&quot;&gt;&lt;/vue-app&gt;</code></pre>
+      <vue-app name="example3Aapp" store="sharedstore"></vue-app>
+      <vue-app name="example3Bapp" store="sharedstore"></vue-app>
+    </section>
     
   <script src="../build/index.js"></script>
   <script src="dist/main.js" type="module"></script>

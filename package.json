@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack",
     "test": "jest",
-    "demo": "npm run build && http-server -p 8118 -o /demo/index.html  -c-1",
+    "demo": "npm run build && http-server -p 8119 -o /demo/index.html  -c-1",
     "prepare": "npm run build",
     "pack": "npm run build",
     "trypublish": "npm publish --access public || true"
@@ -52,6 +52,6 @@
     "webpack-cli": "^4.1.0"
   },
   "dependencies": {
-    "@wezz/window-reference-store": "0.0.6"
+    "@wezz/window-reference-store": "0.0.8"
   }
 }

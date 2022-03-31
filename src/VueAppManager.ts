@@ -32,8 +32,6 @@ export default class VueAppManager {
   };
 
   constructor() {
-    // Make sure older browsers respect the vue-app element
-    console.log("WindowReferenceStore", RefStore);
     this.appStore = new RefStore("registeredapps", "vueappmanagerApps");
     this.storeStore = new RefStore("registeredstores", "vueappmanagerApps");
     this.globalInitiation();
@@ -87,12 +85,10 @@ export default class VueAppManager {
       return appWasLoaded;
     }
     const onAppRender = function () {
-      console.log("onAppRender this", this);
       const appScope: any = this as any;
       appScope.$nextTick(function () {
         const nextTickScope = this as any;
         const appElm = nextTickScope.$el.parentElement as HTMLElement;
-        console.log("onAppRender appElm", appElm, nextTickScope.$el);
         const appstatusAttribute = document.createAttribute("data-appstatus");
         if (appElm) {
           nextTickScope.TriggerMarkupChangeEvent(appElm);
@@ -295,6 +291,7 @@ export default class VueAppManager {
     if (document.documentElement.dataset.vuemanagerinitialized === "true") {
       return;
     }
+    // Make sure older browsers respect the vue-app element
     document.createElement("vue-app");
 
     if (Vuex) {
